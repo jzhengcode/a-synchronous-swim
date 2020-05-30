@@ -1,5 +1,7 @@
 const _ = require('underscore');
 const keypress = require('keypress');
+// require httpHandler so we have access to httpHandler.initialize
+const httpHandler = require('./httpHandler.js');
 
 ///////////////////////////////////////////////////////////////////////////////
 // Utility Function ///////////////////////////////////////////////////////////
@@ -7,16 +9,18 @@ const keypress = require('keypress');
 
 const validMessages = ['left', 'right', 'up', 'down'];
 const mappedChars = { space: ' ' }; // special mappings
+let queue;
 
 const isValidMessage = (message) => {
   return _.contains(validMessages, message);
 };
 
-const logKeypress = (key) => {
   // in raw-mode it's handy to see what's been typed
   // when not in raw mode, the terminal will do this for us
+const logKeypress = (key) => {
   if (process.stdin.isRaw) {
     process.stdout.write(key);
+    //put keypress into queue
   }
 };
 
@@ -25,8 +29,12 @@ const logKeypress = (key) => {
 ///////////////////////////////////////////////////////////////////////////////
 
 var message = ''; // a buffer to collect key presses
+// create a queue variable
+// pass in queue
 
-module.exports.initialize = (callback) => {
+module.exports.initialize = (callback, messageQueue) => {
+  //store queue in global queue variable
+  queue = messageQueue;
 
   // setup an event handler on standard input
   process.stdin.on('keypress', (chunk, key) => {
@@ -40,7 +48,7 @@ module.exports.initialize = (callback) => {
       callback(key.name);
       return; // don't do any more processing on this key
     }
-    
+
     // otherwise build up a message from individual characters
     if (key && (key.name === 'return' || key.name === 'enter')) {
       // on enter, process the message

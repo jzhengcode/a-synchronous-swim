@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const _ = require('underscore');
 const headers = require('./cors');
 const multipart = require('./multipartUtils');
 
@@ -12,9 +13,23 @@ module.exports.initialize = (queue) => {
   messageQueue = queue;
 };
 
+let respondToCommand = (response) => {
+  let keyStroke = messageQueue.dequeue();
+  if (keyStroke !== undefined) {
+    // take keypresses and send them until queue is empty
+    process.stdout.write(keyStroke);
+    response.write(keyStroke);
+  }
+};
+
 module.exports.router = (req, res, next = ()=>{}) => {
-  console.log('Serving request type ' + req.method + ' for url ' + req.url);
   res.writeHead(200, headers);
+  // switch case statement
+  switch (req.method) {
+    case 'GET':
+      respondToCommand(res);
+  }
+  console.log('Serving request type ' + req.method + ' for url ' + req.url);
   res.end();
   next(); // invoke next() at the end of a request to help with testing!
 };
