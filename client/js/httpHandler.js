@@ -11,9 +11,7 @@
     $.ajax({
       type: 'GET',
       url: serverURL,
-      cache: false,
-      success: function(data, status, jqxhr) {
-        debugger;
+      success: function(data) {
         callback(data)
       }
     });

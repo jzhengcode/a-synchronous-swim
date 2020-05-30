@@ -22,12 +22,31 @@ let respondToCommand = (response) => {
   }
 };
 
+let respondToGet = (res, url) => {
+  switch(url) {
+    case '/':
+      res.writeHead(200, headers);
+      respondToCommand(res);
+      break;
+    case '/image':
+     if (fs.existsSync(module.exports.backgroundImageFile)){
+       let content = fs.readFileSync(module.exports.backgroundImageFile);
+       res.writeHead(200, {...headers, 'Content-type':'image/jpg'});
+       res.end(content);
+     } else {
+       res.writeHead(404, headers);
+     }
+  }
+}
+
 module.exports.router = (req, res, next = ()=>{}) => {
-  res.writeHead(200, headers);
   // switch case statement
   switch (req.method) {
     case 'GET':
-      respondToCommand(res);
+      respondToGet(res, req.url);
+      break;
+    case 'OPTIONS':
+      res.writeHead(200, headers);
   }
   console.log('Serving request type ' + req.method + ' for url ' + req.url);
   res.end();
